@@ -19,8 +19,12 @@ app.listen(port,() =>{
 //PostAPI
 
 app.post("/api/add_student",(req,res)=>{
-    const pdata = {
-        "id": studentData.length+1,
+
+
+    console.log("Result", req.body);
+
+    const sdata = {
+        "id": studentData.length + 1,
         "firstName": req.body.fname,
         "lastName": req.body.lname,
         "course": req.body.course,
@@ -32,7 +36,7 @@ app.post("/api/add_student",(req,res)=>{
     console.log("Final Result", sdata);
 
 
-    res.statusCode(200).send({
+    res.status(200).send({
         "Status Code": 200,
         "Message": "Student has been added successfully",
         "student":sdata
