@@ -1,20 +1,17 @@
 const express = require("express");
 const app = express();
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// In-memory data store
 const studentData = [];
 
-// Server setup
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// POST API - Add Student
+// POST API
 app.post("/api/add_student", (req, res) => {
   console.log("Request Body:", req.body);
 
@@ -24,7 +21,7 @@ app.post("/api/add_student", (req, res) => {
     lastname: req.body.lastname,
     course: req.body.course,
     year: req.body.year,
-    enrolled: req.body.enrolled === 'true', // Convert string to boolean if needed
+    enrolled: req.body.enrolled === 'true',
   };
 
   studentData.push(sdata);
@@ -37,7 +34,7 @@ app.post("/api/add_student", (req, res) => {
   });
 });
 
-// GET API - Get Students
+// GET API
 app.get("/api/get_student", (req, res) => {
   if (studentData.length > 0) {
     res.status(200).send({
@@ -51,3 +48,29 @@ app.get("/api/get_student", (req, res) => {
     });
   }
 });
+
+//UPDATE API
+app.put("/api/update_student/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const studentIndex = studentData.findIndex(student => student.id === id);
+
+  if (studentIndex !== -1) {
+    studentData[studentIndex] = {
+      ...studentData[studentIndex],
+      ...req.body,
+      enrolled: req.body.enrolled === 'true'
+    };
+
+    res.status(200).send({
+      statusCode: 200,
+      message: "Student Information Successfully Updated",
+      student: studentData[studentIndex],
+    });
+  } else {
+    res.status(404).send({
+      statusCode: 404,
+      message: "Student not found"
+    });
+  }
+});
+
