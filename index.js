@@ -74,3 +74,23 @@ app.put("/api/update_student/:id", (req, res) => {
   }
 });
 
+// DELETE API
+app.delete("/api/delete_student/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const studentIndex = studentData.findIndex(student => student.id === id);
+
+  if (studentIndex !== -1) {
+    const deletedStudent = studentData.splice(studentIndex, 1);
+    res.status(200).send({
+      statusCode: 200,
+      message: "Student successfully deleted",
+      student: deletedStudent[0],
+    });
+  } else {
+    res.status(404).send({
+      statusCode: 404,
+      message: "Student not found"
+    });
+  }
+});
+
