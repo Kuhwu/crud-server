@@ -1,5 +1,12 @@
 const express = require("express");
 const app = express();
+const mongoose = require('mongoose');
+const Student = require('./model/studentModel');
+
+mongoose.connect('mongodb+srv://jhcentino2003:H3lcrmEHLaFNC2Yt@crud.klbqg.mongodb.net/?retryWrites=true&w=majority&appName=CRUD')
+  .then(() => console.log('Connected to MongoDB...'))
+  .catch(err => console.error('Could not connect to MongoDB...', err));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -12,84 +19,97 @@ app.listen(port, () => {
 });
 
 // POST API
-app.post("/api/add_student", (req, res) => {
-  console.log("Request Body:", req.body);
-
-  const sdata = {
-    id: studentData.length + 1,
+app.post("/api/add_student", async (req, res) => {
+  const student = new Student({
     firstname: req.body.firstname,
     lastname: req.body.lastname,
     course: req.body.course,
     year: req.body.year,
     enrolled: req.body.enrolled === 'true',
-  };
-
-  studentData.push(sdata);
-  console.log("Student Added:", sdata);
-
-  res.status(200).send({
-    statusCode: 200,
-    message: "Student has been added successfully",
-    student: sdata,
   });
+
+  try {
+    const savedStudent = await student.save();
+    res.status(200).send({
+      statusCode: 200,
+      message: "Student has been added successfully",
+      student: savedStudent,
+    });
+  } catch (err) {
+    res.status(500).send({
+      statusCode: 500,
+      message: "Error saving student",
+      error: err.message,
+    });
+  }
 });
 
 // GET API
-app.get("/api/get_student", (req, res) => {
-  if (studentData.length > 0) {
+app.get("/api/get_student", async (req, res) => {
+  try {
+    const students = await Student.find();
     res.status(200).send({
       statusCode: 200,
-      students: studentData,
+      students: students,
     });
-  } else {
-    res.status(200).send({
-      statusCode: 200,
-      students: [],
+  } catch (err) {
+    res.status(500).send({
+      statusCode: 500,
+      message: "Error retrieving students",
+      error: err.message,
     });
   }
 });
 
 //UPDATE API
-app.put("/api/update_student/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const studentIndex = studentData.findIndex(student => student.id === id);
+app.put("/api/update_student/:id", async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(req.params.id, {
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      course: req.body.course,
+      year: req.body.year,
+      enrolled: req.body.enrolled === 'true',
+    }, { new: true });
 
-  if (studentIndex !== -1) {
-    studentData[studentIndex] = {
-      ...studentData[studentIndex],
-      ...req.body,
-      enrolled: req.body.enrolled === 'true'
-    };
+    if (!student) return res.status(404).send({
+      statusCode: 404,
+      message: "Student not found",
+    });
 
     res.status(200).send({
       statusCode: 200,
       message: "Student Information Successfully Updated",
-      student: studentData[studentIndex],
+      student: student,
     });
-  } else {
-    res.status(404).send({
-      statusCode: 404,
-      message: "Student not found"
+  } catch (err) {
+    res.status(500).send({
+      statusCode: 500,
+      message: "Error updating student",
+      error: err.message,
     });
   }
 });
-
 // DELETE API
-app.delete("/api/delete_student/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const studentIndex = studentData.findIndex(student => student.id === id);
+app.delete("/api/delete_student/:id", async (req, res) => {
+  try {
+    const student = await Student.findByIdAndRemove(req.params.id);
 
-  if (studentIndex !== -1) {
-    const deletedStudent = studentData.splice(studentIndex, 1);
+    if (!student) return res.status(404).send({
+      statusCode: 404,
+      message: "Student not found",
+    });
+
     res.status(200).send({
       statusCode: 200,
       message: "Student successfully deleted",
-      student: deletedStudent[0],
+      student: student,
     });
-  } else {
-    res.status(404).send({
-      statusCode: 404,
-      message: "Student not found"
+  } catch (err) {
+    res.status(500).send({
+      statusCode: 500,
+      message: "Error deleting student",
+      error: err.message,
     });
   }
 });
