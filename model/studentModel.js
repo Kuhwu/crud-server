@@ -4,7 +4,7 @@ const studentSchema = new mongoose.Schema({
     firstname: { type: String, required: true},
     lastname: { type: String, required: true},
     course: {type: String, required: true},
-    year: {type: Number, required: true},
+    year: {type: String, required: true},
     enrolled: {type: Boolean, required: true},
 });
 
