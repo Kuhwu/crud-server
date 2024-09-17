@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require('mongoose');
-const studentRoutes = require('./routes/studentRoutes'); // Import the student routes
+const studentRoutes = require('./routes/studentRoutes');
 const app = express();
 
 mongoose.connect('mongodb+srv://jhcentino2003:H3lcrmEHLaFNC2Yt@crud.klbqg.mongodb.net/?retryWrites=true&w=majority&appName=CRUD')
